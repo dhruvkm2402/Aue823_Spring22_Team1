@@ -2,4 +2,4 @@
 # 1. Sumedh Sathe
 # 2. Pardha Sai Krishna Ala
 # 3. Dhruv Mehta
-# 4. Shubhankar Kulkarni
+# 4. Shubhankar Kulkarni sskulka@clemson.edu
