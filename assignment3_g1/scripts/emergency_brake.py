@@ -9,7 +9,7 @@ from sensor_msgs.msg import LaserScan
 
 #global variables
 laser_scaninfo = None
-fThreshhold = 5
+fThreshhold = 0.5
 bIsClear = True
 
 def callback(data):
