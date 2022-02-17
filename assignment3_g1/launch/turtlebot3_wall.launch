@@ -17,6 +17,10 @@
 
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
   
+<<<<<<< HEAD
   <node pkg="assignment3_g1" type="emergency_brake1.py" name="turtlesim"/>
+=======
+  <node pkg="assignment3_g1" type="emergency_braking.py" name="turtlesim"/>
+>>>>>>> 866e0a45635c8013f7157348238f4bb9d968a391
    
 </launch>

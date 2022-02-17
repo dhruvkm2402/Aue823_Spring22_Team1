@@ -48,6 +48,7 @@ def rotate():
     vel_msg.angular.z = 0
     vel_msg.linear.x=0
     velocity_publisher.publish(vel_msg)
+    sub = rospy.Subscriber("/scan", LaserScan, callback)
     rospy.spin()
 
 if __name__ == '__main__':
