@@ -1,0 +1,2 @@
+The assignment4_sim2real folder contains scripts, launch and videos for assignment work. The scripts folder contains pyhton files for circle and square motion of turtlebot.
+The launch folder contains a launch file for TurtleBot motion. When you launch the file, please don't forget to add arg "code_py:= "code"" on the terminal. The videos folder contains videos of TurtleBot traversing circular and square paths
