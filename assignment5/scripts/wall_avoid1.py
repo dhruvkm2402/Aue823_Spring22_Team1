@@ -2,27 +2,44 @@
 import rospy # Python library for ROS
 from sensor_msgs.msg import LaserScan # LaserScan type message is defined in sensor_msgs
 from geometry_msgs.msg import Twist #
+import numpy as np
 
 def callback(dt):
-    #print '-------------------------------------------'
-    print ('Range data at 0 deg:   {}'.format(dt.ranges[0]))
-    print ('Range data at 15 deg:  {}'.format(dt.ranges[15]))
-    print ('Range data at 345 deg: {}'.format(dt.ranges[345]))
-    #print '-------------------------------------------'
+    left = min(min(dt.ranges[50:100]),15)
+    right = min(min(dt.ranges[260:310]),15)
+    #front = min(min(dt.ranges[330:360] + dt.ranges[0:30]),10)
+    frightrng = dt.ranges[330:360]
+    fleftrng = dt.ranges[0:30]
+    
+    fleftrng = np.array(fleftrng)
+    frightrng = np.array(frightrng)
+    
+    frightrng = frightrng[frightrng > 0.0]
+    fleftrng = fleftrng[fleftrng > 0.0]
+    
+    fleft = min(min(fleftrng),10)
+    fright = min(min(frightrng),10)
+    
+    print('-------------------------------------------')
+    print('Range data at Left:  {}'.format(fleft))
+    print('Range data at Right: {}'.format(fright))
+    print('-------------------------------------------')
     thr1 = 0.5 # Laser scan range threshold
-    thr2 = 0.5
-    if dt.ranges[0]>thr1 and dt.ranges[10]>thr2 and dt.ranges[350]>thr2: # Checks if there are obstacles in front and
-                                                                         # 15 degrees left and right (Try changing the
-									 # the angle values as well as the thresholds)
+
+    if fright <thr1 : # Checks if there are obstacles in front and
+        move.linear.x = 0.0 # stop
+        move.angular.z = 0.7 # rotate left                                                             
+    elif fleft < thr1: 
+        move.linear.x = 0.0 # stop
+        move.angular.z = -0.7 # rotate right
+    else:					
         move.linear.x = 0.5 # go forward (linear velocity)
         move.angular.z = 0.0 # do not rotate (angular velocity)
-    elif dt.ranges[0] >thr1 and dt.ranges[10]>thr2 and dt.ranges[350]<thr2:
-        move.linear.x = 0.0 # stop
-        move.angular.z = 0.5 # rotate counter-clockwise
-    elif dt.ranges[0]>thr1 and dt.ranges[10]<thr2 and dt.ranges[350]>thr2:
-        move.linear.x = 0.0 # stop
-        move.angular.z = -0.5 # rotate clockwise     
+        
+
     pub.publish(move) # publish the move object
+
+
 move = Twist() # Creates a Twist message type object
 rospy.init_node('obstacle_avoidance_node') # Initializes a node
 pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)  # Publisher object which will publish "Twist" type messages
@@ -34,3 +51,4 @@ sub = rospy.Subscriber("/scan", LaserScan, callback)  # Subscriber object which 
 						      # each time it reads something from the Topic
 
 rospy.spin() # Loops infinitely until someone stops the program execution
+

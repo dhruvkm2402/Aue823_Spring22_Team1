@@ -52,13 +52,13 @@ def follow_wall():
 	if reg_las['front'] > d: # no obstacle in specified range 
 		wz=kp*(e_current)+ki*(e_total)+kd*(e_current-e_previous) # changing angular velocity based on error in bot's position w.r.t to two walls
 		if reg_las['right']>2 or reg_las['left']>2: # specifying linear velocity
-			vx=0.5
+			vx=0.4
 		else:
-			vx=0.6
+			vx=0.7
 	else:
 		wz=0.4
 		vx=0
-	thresh=1.4
+	thresh=1.3
 	if wz > thresh:
         	wz = thresh
 	elif wz < -thresh:
