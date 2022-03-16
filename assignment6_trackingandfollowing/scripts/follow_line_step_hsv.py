@@ -7,14 +7,26 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image
 from move_robot import MoveTurtlebot3
 
+#creating a discretized pid controller
+kp = 0.4
+ki = 0.0
+kd = 0.3
+k11 = kp + ki + kd
+k21 = -kp - 2*kd
+k31 = kd
+e11,e21,e31 = 0,0,0
+u = 0
+
 class LineFollower(object):
 
-    def __init__(self):
+    def __init__(self, pub):
         self.bridge_object = CvBridge()
+        self.pub = pub
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
-        self.moveTurtlebot3_object = MoveTurtlebot3()
+        #self.moveTurtlebot3_object = MoveTurtlebot3()
 
     def camera_callback(self, data):
+        global e11, e21, e31, u, k11, k21, k31
         # We select bgr8 because its the OpneCV encoding by default
         cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
 
@@ -56,17 +68,33 @@ class LineFollower(object):
         ###   ENTER CONTROLLER HERE   ###
         #################################
 
-        rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
+        twist_object = Twist()
+
+        #computing error
+        err = cx - height/2
+        rospy.loginfo("Error is===>"+str(err))
+
+        e31 = e21
+        e21 = e11
+        e11 = err
+        u = u + k11*e11 + k21*e21 + k31*e31
+
+        twist_object.angular.z = -u/100
+        twist_object.linear.x = 0.2
+
+        #rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
         # Make it start turning
-        self.moveTurtlebot3_object.move_robot(twist_object)
+        #self.moveTurtlebot3_object.move_robot(twist_object)
+        self.pub.publish(twist_object)
 
     def clean_up(self):
-        self.moveTurtlebot3_object.clean_class()
+        #self.moveTurtlebot3_object.clean_class()
         cv2.destroyAllWindows()
 
 def main():
     rospy.init_node('line_following_node', anonymous=True)
-    line_follower_object = LineFollower()
+    pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+    line_follower_object = LineFollower(pub)
     rate = rospy.Rate(5)
     ctrl_c = False
     def shutdownhook():
