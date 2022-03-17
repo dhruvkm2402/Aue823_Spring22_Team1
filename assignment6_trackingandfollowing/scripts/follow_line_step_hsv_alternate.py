@@ -68,7 +68,7 @@ class LineFollower(object):
         ###   ENTER CONTROLLER HERE   ###
         #################################
 
-        twist_object = Twist()
+        '''twist_object = Twist()
 
         #computing error
         err = cx - height/2
@@ -85,8 +85,8 @@ class LineFollower(object):
         #rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
         # Make it start turning
         #self.moveTurtlebot3_object.move_robot(twist_object)
-        self.pub.publish(twist_object)
-        '''pub_= rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        self.pub.publish(twist_object)'''
+        pub_= rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         msg=Twist()
         k = 0.002
         angular_z = -k*(cx-width/2)
@@ -103,7 +103,7 @@ class LineFollower(object):
         print([angular_z,linear_x])
         msg.linear.x = linear_x
         msg.angular.z = angular_z
-        pub_.publish(msg)'''
+        pub_.publish(msg)
 
     def clean_up(self):
         #self.moveTurtlebot3_object.clean_class()

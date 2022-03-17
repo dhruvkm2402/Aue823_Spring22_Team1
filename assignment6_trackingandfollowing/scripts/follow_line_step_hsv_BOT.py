@@ -22,7 +22,7 @@ class LineFollower(object):
     def __init__(self, pub):
         self.bridge_object = CvBridge()
         self.pub = pub
-        self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
+        self.image_sub = rospy.Subscriber("/camera/image",Image,self.camera_callback)
         #self.moveTurtlebot3_object = MoveTurtlebot3()
 
     def camera_callback(self, data):
@@ -45,6 +45,7 @@ class LineFollower(object):
         """
 
         # Threshold the HSV image to get only yellow colors
+        sensitivity = 15
         lower_yellow = np.array([20,100,100])
         upper_yellow = np.array([50,255,255])
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
@@ -68,7 +69,7 @@ class LineFollower(object):
         ###   ENTER CONTROLLER HERE   ###
         #################################
 
-        twist_object = Twist()
+        '''twist_object = Twist()
 
         #computing error
         err = cx - height/2
@@ -85,12 +86,12 @@ class LineFollower(object):
         #rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
         # Make it start turning
         #self.moveTurtlebot3_object.move_robot(twist_object)
-        self.pub.publish(twist_object)
-        '''pub_= rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        self.pub.publish(twist_object)'''
+        pub_= rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         msg=Twist()
-        k = 0.002
+        k = 0.001/1.5
         angular_z = -k*(cx-width/2)
-        linear_x = 0.2 
+        linear_x = 0.1 
 
         thresh = 1.5
         if angular_z > thresh:
@@ -103,7 +104,8 @@ class LineFollower(object):
         print([angular_z,linear_x])
         msg.linear.x = linear_x
         msg.angular.z = angular_z
-        pub_.publish(msg)'''
+        #rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
+        pub_.publish(msg)
 
     def clean_up(self):
         #self.moveTurtlebot3_object.clean_class()
