@@ -31,8 +31,10 @@ class LineFollower(object):
         cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
 
         # We get image dimensions and crop the parts of the image we dont need
-        height, width, channels = cv_image.shape
-        crop_img = cv_image[int((height/2)+100):int((height/2)+120)][1:int(width)]
+        height, width, pages = cv_image.shape
+        print(f'The height width and depth of image are {height}, {width}, and {pages}')
+        #crop_img = cv_image[int((height/2)+150):int((height/2)+170)][1:int(width)]
+        crop_img = cv_image[255:][200:int(width-200)]
         #crop_img = cv_image[340:360][1:640]
 
         # Convert from RGB to HSV
@@ -45,20 +47,24 @@ class LineFollower(object):
         """
 
         # Threshold the HSV image to get only yellow colors
-        sensitivity = 15
+        
         lower_yellow = np.array([20,100,100])
         upper_yellow = np.array([50,255,255])
+        
+        '''lower_red = np.array([150,80,90])
+        upper_red = np.array([179,200,200])
+        
+        mask = cv2.inRange(hsv, lower_red, upper_red)'''
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-
         # Calculate centroid of the blob of binary image using ImageMoments
         m = cv2.moments(mask, False)
 
         try:
             cx, cy = m['m10']/m['m00'], m['m01']/m['m00']
         except ZeroDivisionError:
-            cx, cy = height/2, width/2
-        
-        # Draw the centroid in the resultut image
+            cx, cy = width/2,height/2
+        print(f'The coordinates of centroid of blob cx, cy are {cx}, {cy}')
+        # Draw the centroid in the resultant image
         # cv2.circle(img, center, radius, color[, thickness[, lineType[, shift]]]) 
         cv2.circle(mask,(int(cx), int(cy)), 10,(0,0,255),-1)
         cv2.imshow("Original", cv_image)
@@ -69,30 +75,16 @@ class LineFollower(object):
         ###   ENTER CONTROLLER HERE   ###
         #################################
 
-        '''twist_object = Twist()
-
-        #computing error
-        err = cx - height/2
-        rospy.loginfo("Error is===>"+str(err))
-
-        e31 = e21
-        e21 = e11
-        e11 = err
-        u = u + k11*e11 + k21*e21 + k31*e31
-
-        twist_object.angular.z = -u/100
-        twist_object.linear.x = 0.2
-
-        #rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
-        # Make it start turning
-        #self.moveTurtlebot3_object.move_robot(twist_object)
-        self.pub.publish(twist_object)'''
         pub_= rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         msg=Twist()
-        k = 0.001/1.5
-        angular_z = -k*(cx-width/2)
-        linear_x = 0.1 
-
+        if cx != width/2:
+            k = 0.001/1.5
+            angular_z = -k*(cx-width/2)
+            linear_x = 0.1
+        else:
+            angular_z=0.18
+            linear_x = 0.0
+            ###
         thresh = 1.5
         if angular_z > thresh:
             angular_z = thresh

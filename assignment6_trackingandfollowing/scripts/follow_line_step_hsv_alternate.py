@@ -23,6 +23,8 @@ class LineFollower(object):
         self.bridge_object = CvBridge()
         self.pub = pub
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
+        cv2.createTrackbar('lowH','Original',0,179,self.camera_callback)
+        cv2.namedWindow('Original')
         #self.moveTurtlebot3_object = MoveTurtlebot3()
 
     def camera_callback(self, data):
@@ -31,10 +33,19 @@ class LineFollower(object):
         cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
 
         # We get image dimensions and crop the parts of the image we dont need
-        height, width, channels = cv_image.shape
-        crop_img = cv_image[int((height/2)+100):int((height/2)+120)][1:int(width)]
+        height, width, pages = cv_image.shape
+        print(f'The height width and depth of image are {height}, {width}, and {pages}')
+        #crop_img = cv_image[int((height/2)+100):int((height/2)+120)][1:int(width)]
+        crop_img = cv_image[255:][100:int(width-100)]
         #crop_img = cv_image[340:360][1:640]
-
+        '''# create trackbars for color change
+        cv2.createTrackbar('lowH','image',0,179,nothing)
+        cv2.createTrackbar('highH','image',179,179,nothing)
+	 
+        cv2.createTrackbar('lowS','image',0,255,nothing)
+        cv2.createTrackbar('highS','image',255,255,nothing)
+        cv2.createTrackbar('lowV','image',0,255,nothing)
+        cv2.createTrackbar('highV','image',255,255,nothing)'''
         # Convert from RGB to HSV
         hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
 
@@ -53,14 +64,14 @@ class LineFollower(object):
         m = cv2.moments(mask, False)
 
         try:
-            cx, cy = m['m10']/m['m00'], m['m01']/m['m00']
+            cx, cy = m['m10']/m['m00'], m['m01']/m['m00'] # calculating x and y coordinates of centroid of blob
         except ZeroDivisionError:
-            cx, cy = height/2, width/2
+            cx, cy = width/2, height/2
         
         # Draw the centroid in the resultut image
         # cv2.circle(img, center, radius, color[, thickness[, lineType[, shift]]]) 
         cv2.circle(mask,(int(cx), int(cy)), 10,(0,0,255),-1)
-        cv2.imshow("Original", cv_image)
+        cv2.imshow("Original", crop_img)
         cv2.imshow("MASK", mask)
         cv2.waitKey(1)
 
@@ -68,29 +79,11 @@ class LineFollower(object):
         ###   ENTER CONTROLLER HERE   ###
         #################################
 
-        '''twist_object = Twist()
-
-        #computing error
-        err = cx - height/2
-        rospy.loginfo("Error is===>"+str(err))
-
-        e31 = e21
-        e21 = e11
-        e11 = err
-        u = u + k11*e11 + k21*e21 + k31*e31
-
-        twist_object.angular.z = -u/100
-        twist_object.linear.x = 0.2
-
-        #rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
-        # Make it start turning
-        #self.moveTurtlebot3_object.move_robot(twist_object)
-        self.pub.publish(twist_object)'''
         pub_= rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         msg=Twist()
-        k = 0.002
-        angular_z = -k*(cx-width/2)
-        linear_x = 0.2 
+        k = 0.001/15
+        angular_z = -k*((cx-width/1000)
+        linear_x = 0.1 
 
         thresh = 1.5
         if angular_z > thresh:
