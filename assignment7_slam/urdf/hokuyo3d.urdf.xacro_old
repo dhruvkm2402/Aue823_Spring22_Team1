@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <robot name="sensor_hokuyo3d" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <xacro:arg name="visualize" default="true"/>
+     <xacro:include filename="$(find gazebo_sensor_collection)/urdf/includes/materials.urdf.xacro"/>
 
-     <xacro:macro name="sensor_hokuyo3d" params="name parent *origin color">
+     <xacro:macro name="sensor_hokuyo3d" params="name visualize:=false parent *origin color">
 
           <joint name="${name}_fix_joint" type="fixed">
                <xacro:insert_block name="origin" />
-               <parent link="base_link"/>
+               <parent link="${parent}"/>
                <child link="${name}_fix_link"/>
           </joint>
 
@@ -22,7 +22,7 @@
                <visual>
                     <origin xyz="0 0 0" rpy="0 0 0"/>
                     <geometry>
-                         <mesh filename="package://turtlebot3_description/meshes/sensors/hokuyo3d.stl"/>
+                         <mesh filename="package://gazebo_sensor_collection/meshes/lidars/hokuyo/hokuyo3d.stl"/>
                     </geometry>
                     <xacro:color_material color="${color}"/>
                </visual>
@@ -52,7 +52,7 @@
                            Gazebo
      ========================================================= -->
 
-     <xacro:macro name="sensor_hokuyo3d">
+     <xacro:macro name="sensor_hokuyo3d_gazebo">
           <gazebo reference="${name}_link">
                <sensor type="gpu_ray" name="${name}_sensor">
                     <pose>0 0 0 0 0 0</pose>
