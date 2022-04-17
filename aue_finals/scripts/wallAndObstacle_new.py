@@ -31,24 +31,32 @@ class Clbk_obj(object):
 def callback_ObsAvd(dt, args):
     pub = args.pub
     move = args.move
-    rospy.loginfo('-------------------------------------------')
-    rospy.loginfo('Range data at 0 deg:   {}'.format(dt.ranges[0]))
-    rospy.loginfo('Range data at 15 deg:  {}'.format(dt.ranges[15]))
-    rospy.loginfo('Range data at 345 deg: {}'.format(dt.ranges[345]))
-    rospy.loginfo('-------------------------------------------')
-    thr1 = 0.3 # Laser scan range threshold
-    thr2 = 0.3
-    if dt.ranges[0]>thr1 and dt.ranges[15]>thr2 and dt.ranges[345]>thr2: # Checks if there are obstacles in front and
-                                                                         # 15 degrees left and right (Try changing the
-									 # the angle values as well as the thresholds)
-        move.linear.x = 0.2 # go forward (linear velocity)
-        move.angular.z = 0.0 # do not rotate (angular velocity)
+    front = []
+    front.extend(dt.ranges[0:10])
+    front.extend(dt.ranges[350:359])
+    
+    left = dt.ranges[30:90]
+    right = dt.ranges[270:330]
+    
+    threshold = 1               # Threshold distance
+    max_vel = 0.5               # Maximum Linear Velocity
+    min_dist = 0.2              # Minimum distance from obstacle where the robot must stop
+    
+    nearest_front = min(min(front),10)
+    
+    front_err = min(front) - threshold
+    
+    if front_err > 0:
+        move.linear.x = 0.5
+        move.angular.z = 0.0
     else:
-        move.linear.x = 0.0 # stop
-        move.angular.z = 0.5 # rotate counter-clockwise
-        if dt.ranges[0]>thr1 and dt.ranges[15]>thr2 and dt.ranges[345]>thr2:
-            move.linear.x = 0.2
-            move.angular.z = 0.0
+        if min(left) > min(right):
+            move.angular.z = -kw*front_error
+            move.linear.x = max((max_vel/(threshold - min_dist))*(nearest_front-min_dist),0)
+        else:
+            move.angular.z = kw*front_error
+            move.linear.x = max((max_vel/(threshold - min_dist))*(nearest_front-min_dist),0)
+            
     pub.publish(move) # publish the move object
 
 def callback_WlFlw(dt, args):
