@@ -41,6 +41,7 @@ def callback_ObsAvd(dt, args):
     threshold = 1               # Threshold distance
     max_vel = 0.5               # Maximum Linear Velocity
     min_dist = 0.2              # Minimum distance from obstacle where the robot must stop
+    kw = 1                      # Proportional constant for angular velocity control
     
     nearest_front = min(min(front),10)
     
