@@ -24,23 +24,23 @@ def callback_ObsAvd(dt, args):
     left = dt.ranges[30:90]
     right = dt.ranges[270:330]
     
-    threshold = 1               # Threshold distance
-    max_vel = 0.5               # Maximum Linear Velocity
-    min_dist = 0.2              # Minimum distance from obstacle where the robot must stop
-    kw = 1                      # Proportional constant for angular velocity control
+    threshold = 1.2               # Threshold distance
+    max_vel = 0.3               # Maximum Linear Velocity
+    min_dist = 0.3              # Minimum distance from obstacle where the robot must stop
+    kw = 1.2                      # Proportional constant for angular velocity control
     
     nearest_front = min(min(front),10)
     
-    front_err = min(front) - threshold
+    front_error = min(front) - threshold
     
-    if front_err > 0:
+    if front_error > 0:
         move.linear.x = 0.5
         move.angular.z = 0.0
     else:
-        if min(left) > min(right):
+        if mean(left) > mean(right):
             move.angular.z = -kw*front_error
             move.linear.x = max((max_vel/(threshold - min_dist))*(nearest_front-min_dist),0)
-        else:
+        elif mean(right) > mean(left):
             move.angular.z = kw*front_error
             move.linear.x = max((max_vel/(threshold - min_dist))*(nearest_front-min_dist),0)
             
