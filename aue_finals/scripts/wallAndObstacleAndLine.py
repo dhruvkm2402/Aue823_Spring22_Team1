@@ -18,7 +18,7 @@ class Clbk_obj(object):
 
     def __init__(self):
         self.move = Twist() # Creates a Twist message type object
-        self.pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)  # Publisher object which will publish "Twist" type messages
+        self.pub = rospy.Publisher("tb3_0/cmd_vel", Twist, queue_size=10)  # Publisher object which will publish "Twist" type messages
         self.node = rospy.init_node('wallAndObstacle')
         self.isObsAvd = False
         self.isObsL = False
@@ -414,13 +414,13 @@ def main():
     #create two dummy callbacks and put their data in a global variable
     #create an evaluation condition for the variable's value at the start and print it with timestamps
     try:
-        sub_wlflw = rospy.Subscriber("/scan", LaserScan, callback_WlFlw,  wlflw_obj, queue_size=1)  # Subscriber object which will listen "LaserScan" type messages
+        sub_wlflw = rospy.Subscriber("tb3_0/scan", LaserScan, callback_WlFlw,  wlflw_obj, queue_size=1)  # Subscriber object which will listen "LaserScan" type messages
                                                         # from the "/scan" Topic and call the "callback" function
                                                         # each time it reads something from the Topic
-        sub_ObsAvd = rospy.Subscriber("/scan", LaserScan, callback_ObsAvd,  wlflw_obj, queue_size=1)  # Subscriber object which will listen "LaserScan" type messages
+        sub_ObsAvd = rospy.Subscriber("tb3_0/scan", LaserScan, callback_ObsAvd,  wlflw_obj, queue_size=1)  # Subscriber object which will listen "LaserScan" type messages
                                                         # from the "/scan" Topic and call the "callback" function
                                                         # each time it reads something from the Topic
-        sub_LnFlw = rospy.Subscriber("/camera/rgb/image_raw/compressed", CompressedImage, LnFlw_callback,  wlflw_obj, queue_size=1)  
+        sub_LnFlw = rospy.Subscriber("tb3_0/camera/rgb/image_raw/compressed", CompressedImage, LnFlw_callback,  wlflw_obj, queue_size=1)  
                                                         # Subscriber object which will listen "CompressedImage" type messages
                                                         # from the "/camera/rgb/image_raw/compressed" Topic and call the "callback" function
                                                         # each time it reads something from the Topic
