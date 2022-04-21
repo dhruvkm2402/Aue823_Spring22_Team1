@@ -285,7 +285,16 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-    
+      <model name='Apriltag36_11_00008'>
+        <pose frame=''>1.2689 0.587152 0.126884 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='box'>
+          <pose frame=''>1.2689 0.587152 0.126884 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>      
       <model name='unit_box_0'>
         <pose frame=''>-1.67923 -1.71215 0.0732 2e-06 3e-06 1.56162</pose>
         <scale>0.245846 0.219412 0.146399</scale>
@@ -1072,7 +1081,51 @@
         <gravity>1</gravity>
       </link>
       <pose frame=''>1.04744 -0.075752 0 0 -0 0</pose>
-    </model>  
+    </model>
+    <model name='Apriltag36_11_00008'>
+      <static>1</static>
+      <link name='box'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.12 0.025 0.25</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.12 0.025 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://Apriltag36_11_00008/materials/scripts</uri>
+              <uri>model://Apriltag36_11_00008/materials/textures</uri>
+              <name>Apriltag36_11_00008</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+    </model>    
     <model name='unit_sphere_0'>
       <pose frame=''>-1.2117 -1.4189 0.5 0 -0 0</pose>
       <link name='link'>
