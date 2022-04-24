@@ -66,6 +66,8 @@
   </group>  
  
   <node pkg="aue_finals" type="$(arg code_py).py" name="aue_finals"/>
+  <node pkg="aue_finals" type="stop_sign.py" name="stopsign" /> 
+  <include file="$(find aue_finals)/launch/apriltag_follower.launch" />
 
   <!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(find turtlebot3_gazebo)/rviz/turtlebot3_gazebo_model.rviz"/>-->
 </launch>

@@ -47,7 +47,7 @@ class LineFollower(object):
         cv2.createTrackbar('lowV','image',0,255,nothing)
         cv2.createTrackbar('highV','image',255,255,nothing)'''
         # Convert from RGB to HSV
-        hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
 
         # Define the Yellow Colour in HSV
 
@@ -59,6 +59,10 @@ class LineFollower(object):
         lower_yellow = np.array([20,100,100])
         upper_yellow = np.array([50,255,255])
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+        search_top = int(7*h/8)
+        search_bot = int(7*h/8) + 20
+        mask[0:search_top, 0:width] = 0
+        mask[search_bot:height, 0:width] = 0
 
         # Calculate centroid of the blob of binary image using ImageMoments
         m = cv2.moments(mask, False)

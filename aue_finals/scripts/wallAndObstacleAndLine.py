@@ -13,6 +13,9 @@ import cv2
 from cv_bridge import CvBridge, CvBridgeError
 #from move_robot import MoveTurtlebot3
 from sensor_msgs.msg import Image
+from darknet_ros_msgs.msg import BoundingBoxes
+from std_msgs.msg import Int64
+
 
 class Clbk_obj(object):
 
@@ -54,9 +57,8 @@ def LnFlw_callback(data, args):
             # We get image dimensions and crop the parts of the image we dont need
             height, width, pages = cv_image.shape
             print(f'The height width and depth of image are {height}, {width}, and {pages}')
-            #crop_img = cv_image[int((height/2)+150):int((height/2)+170)][1:int(width)]
-            crop_img = cv_image[255:][200:int(width-200)]
-            #crop_img = cv_image[340:360][1:640]
+            #crop_img = cv_image[255:][200:int(width-200)]
+            crop_img = cv_image[int((height)/2)+160:(height)][1:width]
 
             # Convert from RGB to HSV
             hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
@@ -83,7 +85,7 @@ def LnFlw_callback(data, args):
             try:
                 cx, cy = m['m10']/m['m00'], m['m01']/m['m00']
             except ZeroDivisionError:
-                cx, cy = width/2,height/2
+                cx, cy = 10000,10000
             print(f'The coordinates of centroid of blob cx, cy are {cx}, {cy}')
             # Draw the centroid in the resultant image
             # cv2.circle(img, center, radius, color[, thickness[, lineType[, shift]]]) 
@@ -111,10 +113,10 @@ def LnFlw_callback(data, args):
                 angular_z = thresh
             elif angular_z < -thresh:
                 angular_z = -thresh
-            print("Errors:")
-            print([cx,cy,width/2,height/2])
-            print("Controls")
-            print([angular_z,linear_x])
+            #print("Errors:")
+            #print([cx,cy,width/2,height/2])
+            #print("Controls")
+            #print([angular_z,linear_x])
             msg.linear.x = linear_x
             msg.angular.z = angular_z
             #rospy.loginfo("ANGULAR VALUE SENT===>"+str(twist_object.angular.z))
