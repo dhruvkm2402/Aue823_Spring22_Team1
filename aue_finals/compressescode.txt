@@ -1,0 +1,1 @@
+rosrun image_transport republish compressed in:=/raspicam_node/image raw out:=camera/rgb/image_raw'     -- tp republish raspicam/image to rgb/camera/raw

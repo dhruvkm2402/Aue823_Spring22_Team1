@@ -5,8 +5,11 @@ import cv2
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, LaserScan
 from std_msgs.msg import Int16
+from cmath import inf
+
+frontcount = 0
 
 class LineFollower(object):
 
@@ -14,39 +17,64 @@ class LineFollower(object):
         self.bridge_object = CvBridge()
         self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.detect_line_publisher = rospy.Publisher('/detect_line', Int16, queue_size=10)
-        self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
+        self.image_sub = rospy.Subscriber("/camera/image",Image,self.camera_callback)
         #self.image_sub = rospy.Subscriber("/raspicam_node/image/compressed",Image,self.camera_callback)
         self.stop_sign_detect = rospy.Subscriber("/detect_stop",Int16,self.stop_detection)
+        self.distance_detect = rospy.Subscriber('/scan', LaserScan, self.distance_detection)
 
     def stop_detection(self,msg):
         global stop_detected
         stop_detected = msg.data
+    def distance_detection(self, dt):
+        global frontcount
+        #distance = np.mean(np.array(dt.ranges[20:90]))
+
+        front = []
+        front.extend(dt.ranges[0:20])
+        front.extend(dt.ranges[350:359])
+
+        front_avg = 0
+        front_avg_counter = 0
+        for i in range(len(front)):
+            if(front[i]==0):
+                front_avg+=3
+                front_avg_counter+=1
+            else:
+                front_avg+=front[i]
+                front_avg_counter+=1
+        front_avg = front_avg/front_avg_counter
+        #rospy.loginfo("\n front avg is: %f  \n",front_avg)
+        if(front_avg>3):
+            frontcount+=1   
 
     def camera_callback(self, data):
         global stop_detected
-        # We select bgr8 because its the OpneCV encoding by default
-        cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
+        global stopped_before
+        global counter_line_detect
+        global frontcount
         
+        cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
+    
         descenter = 160
-        rows_to_watch = 200 
+        rows_to_watch = 400 
 
-        # We get image dimensions and crop the parts of the image we dont need
+        # Cropping the image to get only desired amount of data
         height, width, channels = cv_image.shape
-        crop_img = cv_image[int((height)/2)+descenter:int((height)/2)+descenter+rows_to_watch][1:width]
+        crop_img = cv_image[int((height)/2)+descenter:int((height)/2)+descenter+rows_to_watch][1:width+200]
        
 
         # Convert from RGB to HSV
         hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
 
-        # Define the Yellow Colour in HSV
-
-        """
-        To know which color to track in HSV use ColorZilla to get the color registered by the camera in BGR and convert to HSV.
-        """
-
-        # Threshold the HSV image to get only yellow colors
-        lower_yellow = np.array([20,100,100])
-        upper_yellow = np.array([50,255,255])
+        # Threshold range to detect yello colour
+        if frontcount < 5: 
+            lower_yellow = np.array([20,100,100])
+            upper_yellow = np.array([50,255,255])
+            #rospy.loginfo("\n the value of frontcount in IF is %d \n", frontcount)
+        else:
+            lower_yellow = np.array([10,50,50])
+            upper_yellow = np.array([255,255,255])
+            #rospy.loginfo("\n the value of frontcount in ELSE is %d \n", frontcount)    
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
         # Calculate centroid of the blob of binary image using ImageMoments
@@ -74,8 +102,8 @@ class LineFollower(object):
 
         err = cx - height/2
 
-        vel_msg.angular.z = -float(err) /740
-        vel_msg.linear.x = 0.08
+        vel_msg.angular.z = -float(err) /780
+        vel_msg.linear.x = 0.1
         
         global stop_detected
         if ((line_detection==1) & (stop_detected!=1)):
@@ -122,6 +150,8 @@ def main():
     while not ctrl_c:
         rate.sleep()
 
+counter_line_detect = 0
 stop_detected =0
+stopped_before =0
 if __name__ == '__main__':
         main()

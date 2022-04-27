@@ -10,11 +10,12 @@ from darknet_ros_msgs.msg import BoundingBoxes
 class stopsign:
     def __init__(self):
         rospy.init_node('stopsignprobability', anonymous=True)
-        self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.stop_sign_detect_pub = rospy.Publisher('/detect_stop', Int16, queue_size=10)
         self.yolo_sub = rospy.Subscriber('/darknet_ros/bounding_boxes',BoundingBoxes,self.newprediction)
         self.detect_line_sub = rospy.Subscriber("/detect_line",Int16,self.line_detection)
         self.rate = rospy.Rate(10)
+
+
 
     def line_detection(self,msg):
         global line_detection
@@ -24,6 +25,7 @@ class stopsign:
         self.rate.sleep()
         global stop_sign_detect
         prediction = bounding_box.bounding_boxes
+        rospy.loginfo("\n bounding boxes number is: %f  \n",len(prediction))
         for box in prediction:
             identified_class=box.Class
             probability = float(box.probability)
@@ -31,7 +33,7 @@ class stopsign:
             if ((identified_class == 'stop sign')):
                 now = time.time()
                 diff=0
-                while diff<4:
+                while diff<2:
                     current = time.time()
                     diff = current - now
                 stop_sign_detect = 1
@@ -43,6 +45,7 @@ stopsign()
 vel_msg = Twist()
 line_detection = 0
 stop_sign_detect = 0
+velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 while True:
     stopsign()
     if line_detection ==0:
@@ -61,5 +64,5 @@ while True:
         vel_msg.angular.x = 0
         vel_msg.angular.y = 0
         vel_msg.angular.z = 0
-        self.velocity_publisher.publish(vel_msg)
+        velocity_publisher.publish(vel_msg)
         rospy.sleep(3)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from cmath import inf
-
+import numpy as np
 from numpy import False_, average
 import rospy # Python library for ROS
 from sensor_msgs.msg import LaserScan # LaserScan type message is defined in sensor_msgs
@@ -17,31 +17,49 @@ class Clbk_obj(object):
 def callback_ObsAvd(dt, args):
     pub = args.pub
     move = args.move
-    front = []
-    front.extend(dt.ranges[0:5])
-    front.extend(dt.ranges[355:359])
+    scans = list(dt.ranges)
+    #scans = np.array(scans)
+    #front = []
+    #front.extend(scans[0:10])
+    #front.extend(scans[350:359])
+    frontleft = scans[0:10]
+    frontright = scans[350:359]
+    front = np.concatenate((frontleft, frontright))
     
-    left = dt.ranges[30:90]
-    right = dt.ranges[270:330]
+    #left = dt.ranges[30:90]
+    #right = dt.ranges[270:330]
+    
+    left = scans[30:90]    
+    right = scans[270:330]
     
     threshold = 0.5               # Threshold distance
     max_vel = 0.3               # Maximum Linear Velocity
-    min_dist = 0.2             # Minimum distance from obstacle where the robot must stop
+    min_dist = 0.3              # Minimum distance from obstacle where the robot must stop
     kw = 1.2                      # Proportional constant for angular velocity control
     
-    nearest_front = min(min(front),10)
+    front = np.clip(front, min_dist,10)
+    left = np.clip(left, min_dist, 10)
+    right = np.clip(right, min_dist, 10)
     
-    front_error = min(front) - threshold
+    nearest_front = np.mean(front)
+    
+    front_error = nearest_front - threshold
+    
+    left_gap = np.array(np.where(left > threshold))
+    right_gap = np.array(np.where(right > threshold))
+    
+    farleft = np.argmax(left)
+    farright = np.argmax(right)
     
     if front_error > 0:
         move.linear.x = 0.5
         move.angular.z = 0.0
     else:
-        if mean(left) > mean(right):
-            move.angular.z = -kw*front_error
+        if left_gap.shape[0] > right_gap.shape[0]:
+            move.angular.z = -kw*farleft
             move.linear.x = max((max_vel/(threshold - min_dist))*(nearest_front-min_dist),0)
-        elif mean(right) > mean(left):
-            move.angular.z = kw*front_error
+        elif right_gap.shape[0] > left_gap.shape[0]:
+            move.angular.z = kw*farright
             move.linear.x = max((max_vel/(threshold - min_dist))*(nearest_front-min_dist),0)
             
     pub.publish(move) # publish the move object

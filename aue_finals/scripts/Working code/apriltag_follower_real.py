@@ -18,6 +18,7 @@ class Apriltag_follower(object):
 
     def __init__(self):
         self.bridge = CvBridge()
+        #to use the CvBridge, you will need to transfer the message from compressed to raw (follow the instructions)
 
         self.publish = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         self.image_sub = rospy.Subscriber('/tag_detections_image', Image, self.camera_callback)
@@ -42,21 +43,22 @@ class Apriltag_follower(object):
             if stop_detected ==1 and april_tag_pub ==0:
                 now = time.time()
                 diff=0
-                while diff<5:
+                while diff<10:
                     current = time.time()
                     diff = current - now
                 april_tag_pub = 1
 
-            x_diff = data.detections[0].pose.pose.pose.position.x        
-            depth_diff = data.detections[0].pose.pose.pose.position.z           
+            x_diff = data.detections[0].pose.pose.pose.position.x
+            depth_diff = data.detections[0].pose.pose.pose.position.z           #the z position represents the depth from the camera cooridnates
             vel_msg = Twist()
 
-            Kp_depth_diff = 0.15                                                
-            Kp_x_diff = 0.5                                                     
-            distance_threshold = 1
+            #the proportianal variables values
+            Kp_depth_diff = 0.15                                                 #the proportional value
+            Kp_x_diff = 1.5                                                   #the proportional value
+            distance_threshold = 0.25
 
             max_lin_speed = 0.2
-            max_ang_speed = 0.2
+            max_ang_speed = 0.5
 
             vel_msg.angular.z = -1*x_diff * Kp_x_diff
 
@@ -68,7 +70,7 @@ class Apriltag_follower(object):
                 vel_msg.angular.z = -1*max_ang_speed
 
             #the velocity message
-            if (depth_diff < distance_threshold) and (depth_diff > 0):        
+            if (depth_diff < distance_threshold) and (depth_diff > 0):          #the robot will maintain distance of 10 cm
                 vel_msg.linear.x = 0
                 vel_msg.angular.z = vel_msg.angular.z
             elif depth_diff > distance_threshold:
@@ -91,6 +93,7 @@ def main():
     global april_tag_pub
     april_tag_pub =0
     stop_detected =0
+
     rospy.init_node('april_tag_node', anonymous=True)
     Apriltag_follower()
     rate = rospy.Rate(5)
