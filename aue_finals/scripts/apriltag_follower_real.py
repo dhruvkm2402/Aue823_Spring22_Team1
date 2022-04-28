@@ -43,7 +43,7 @@ class Apriltag_follower(object):
             if stop_detected ==1 and april_tag_pub ==0:
                 now = time.time()
                 diff=0
-                while diff<5:
+                while diff<10:
                     current = time.time()
                     diff = current - now
                 april_tag_pub = 1
