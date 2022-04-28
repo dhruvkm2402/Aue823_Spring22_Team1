@@ -1,7 +1,0 @@
-<launch>
-
-  <node pkg="aue_finals" type="ObstacleAvoid_real.py" name="wander" />
-  <node pkg="aue_finals" type="line_follower_real.py" name="followline" />
-  <node pkg="aue_finals" type="stop_sign_real.py" name="stopsign" />
-
-</launch>

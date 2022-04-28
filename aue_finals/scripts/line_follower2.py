@@ -15,7 +15,7 @@ class LineFollower(object):
         self.bridge_object = CvBridge()
         self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.detect_line_publisher = rospy.Publisher('/detect_line', Int16, queue_size=10)
-        self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
+        self.image_sub = rospy.Subscriber("/camera/image",Image,self.camera_callback)
         self.stop_sign_detect = rospy.Subscriber("/detect_stop",Int16,self.stop_detection)
 
     def stop_detection(self,msg):
@@ -43,18 +43,18 @@ class LineFollower(object):
         cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
         
         descenter = 160
-        rows_to_watch = 200 
+        rows_to_watch = 400 
 
         height, width, channels = cv_image.shape
-        crop_img = cv_image[int((height)/2)+descenter:int((height)/2)+descenter+rows_to_watch][1:width]
+        crop_img = cv_image[int((height)/2)+descenter:int((height)/2)+descenter+rows_to_watch][1:width+200]
        
 
        
         hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
 
         # Yellow colour detection thresholds
-        lower_yellow = np.array([20,100,100])
-        upper_yellow = np.array([50,255,255])
+        lower_yellow = np.array([10,100,100])
+        upper_yellow = np.array([255,255,255])
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
         m = cv2.moments(mask, False)
         global line_detection
