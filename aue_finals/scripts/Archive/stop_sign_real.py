@@ -25,7 +25,7 @@ class stopsign:
         self.rate.sleep()
         global stop_sign_detect
         prediction = bounding_box.bounding_boxes
-        #rospy.loginfo("\n bounding boxes number is: %f  \n",len(prediction))
+        rospy.loginfo("\n bounding boxes number is: %f  \n",len(prediction))
         for box in prediction:
             identified_class=box.Class
             probability = float(box.probability)

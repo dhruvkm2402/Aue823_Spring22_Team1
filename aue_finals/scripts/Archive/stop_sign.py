@@ -14,7 +14,7 @@ class stopsign:
         self.stop_sign_detect_pub = rospy.Publisher('/detect_stop', Int16, queue_size=10)
         self.yolo_sub = rospy.Subscriber('/darknet_ros/bounding_boxes',BoundingBoxes,self.newprediction)
         self.detect_line_sub = rospy.Subscriber("/detect_line",Int16,self.line_detection)
-        self.rate = rospy.Rate(5)
+        self.rate = rospy.Rate(10)
 
     def line_detection(self,msg):
         global line_detection
