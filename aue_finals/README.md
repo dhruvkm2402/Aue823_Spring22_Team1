@@ -4,7 +4,7 @@
 
 1.  ## Environment
 
-The final project will be an obstacle course which will contain elements of work carried out during this semester.The Turtlebot Burger will have to autonomously navigate through the Gazebo and also through the track developed in a real environment at **CU-ICAR**.
+           - The final project will be an obstacle course which will contain elements of work carried out during this semester.The Turtlebot Burger will have to autonomously navigate through the Gazebo and also through the track developed in a real environment at **CU-ICAR**.
 
 2.  ##Task 1: **Wall following/Obstacle avoidance** -  The Turtlebot starts here. It must successfully follow the wall and avoid the obstacles until it reaches the yellow line.
 3.  ##Task 2: **Line following & Stop Sign Detection** - The Turtlebot must successfully follow the yellow line.
