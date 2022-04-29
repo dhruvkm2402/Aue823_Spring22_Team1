@@ -42,8 +42,10 @@
     - It also has **gazebo.xacro** to describe the bot in gazebo
   - ## **videos**
     - The folder contains the videos taken during simultion of specified tasks
-   - ## **worlds**
+  - ## **worlds**
     - Environment of gazebo world
+
+
 
 There are 3 main launch files:
 1) turtlebot3_auonomybackup.launch to run the scripts coded for Gazebo simulation
