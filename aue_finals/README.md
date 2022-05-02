@@ -44,6 +44,13 @@
     - The folder contains the videos taken during simultion of specified tasks
   - ## **worlds**
     - Environment of gazebo world
+  
+  - ## **Deprecated**
+  - This folder contains script/launch files that are no longer in use. These are only for the use of contributors' reference.
+  - This folder must be deleted after cloning the repository
+
+- ## **Rosbags*
+- Rosbags collected during parameter tuning for line following.
 
 
 
