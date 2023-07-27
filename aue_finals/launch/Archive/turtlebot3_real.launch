@@ -1,0 +1,9 @@
+<launch>
+
+  <node name="republish" type="republish" pkg="image_transport" output="screen" 	args="compressed in:=/camera/image out:=/camera/image" />
+  <node pkg="aue_finals" type="ObstacleAvoid_real.py" name="wander" />
+  <node pkg="aue_finals" type="line_follower2.py" name="followline" /> 
+  
+   
+  
+</launch>
